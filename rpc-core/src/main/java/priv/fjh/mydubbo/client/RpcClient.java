@@ -1,4 +1,4 @@
-package priv.fjh.mydubbo;
+package priv.fjh.mydubbo.client;
 
 import lombok.extern.slf4j.Slf4j;
 import priv.fjh.mydubbo.dto.RpcRequest;

@@ -1,5 +1,7 @@
 package priv.fjh.mydubbo;
 
+import priv.fjh.mydubbo.client.RpcClientProxy;
+
 /**
  * @author fjh
  * @date 2020/12/10 14:03
