@@ -2,6 +2,7 @@ package priv.fjh.mydubbo.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import priv.fjh.mydubbo.constants.RpcResponseCode;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class RpcResponse<T> implements Serializable {
 
     private Integer code;

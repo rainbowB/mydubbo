@@ -1,7 +1,10 @@
-package priv.fjh.mydubbo.client;
+package priv.fjh.mydubbo;
 
+import lombok.AllArgsConstructor;
+import priv.fjh.mydubbo.RpcClient;
 import priv.fjh.mydubbo.dto.RpcRequest;
 import priv.fjh.mydubbo.dto.RpcResponse;
+import priv.fjh.mydubbo.socket.SocketClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -12,14 +15,10 @@ import java.lang.reflect.Proxy;
  * @date 2020/12/7 16:59
  * @Description:
  */
+@AllArgsConstructor
 public class RpcClientProxy implements InvocationHandler {
-    private String host;
-    private int port;
 
-    public RpcClientProxy(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
+    private final RpcClient rpcClient;
 
     public Object getProxy(Class clazz){
         //此处第二个参数不能使用clazz.getInterfaces()，因为传进来的clazz参数是HelloService，是一个接口。
@@ -36,7 +35,6 @@ public class RpcClientProxy implements InvocationHandler {
                 .paramTypes(method.getParameterTypes())
                 .build();
         //不在这个方法中调用method.invoke()，因为客户端没有相应的实现方法，只有接口
-        RpcClient rpcClient = new RpcClient();
-        return ((RpcResponse)rpcClient.sendRequest(rpcRequest,host,port)).getData();
+        return rpcClient.sendRequest(rpcRequest);
     }
 }

@@ -17,9 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultServiceRegister implements ServiceRegister {
 
     //例如对象A实现了接口X和Y，则map的key为X，value为A；key为Y，value为A。
-    private final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
+    private static final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
     //set存放了注册服务的对象名称，即A。
-    private final Set<String> registeredService = ConcurrentHashMap.newKeySet();
+    private static final Set<String> registeredService = ConcurrentHashMap.newKeySet();
 
     @Override
     public synchronized <T> void register(T service) {

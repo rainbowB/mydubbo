@@ -1,7 +1,11 @@
-package priv.fjh.mydubbo.client;
+package priv.fjh.mydubbo.socket;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import priv.fjh.mydubbo.RpcClient;
+import priv.fjh.mydubbo.RpcServer;
 import priv.fjh.mydubbo.dto.RpcRequest;
+import priv.fjh.mydubbo.dto.RpcResponse;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,15 +18,21 @@ import java.net.Socket;
  * @Description:
  */
 @Slf4j
-public class RpcClient {
+@AllArgsConstructor
+public class SocketClient implements RpcClient {
 
-    public Object sendRequest(RpcRequest rpcRequest, String host, int port) {
+    private final String host;
+    private final int port;
+
+    @Override
+    public Object sendRequest(RpcRequest rpcRequest) {
         try (Socket socket = new Socket(host, port)) {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             objectOutputStream.writeObject(rpcRequest);
             objectOutputStream.flush();
-            return objectInputStream.readObject();
+            RpcResponse rpcResponse = (RpcResponse) objectInputStream.readObject();
+            return rpcResponse.getData();
         } catch (IOException | ClassNotFoundException e) {
             log.error("调用时有错误发生：", e);
             return null;
