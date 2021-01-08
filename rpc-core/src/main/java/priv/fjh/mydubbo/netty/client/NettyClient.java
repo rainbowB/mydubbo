@@ -13,6 +13,7 @@ import priv.fjh.mydubbo.codec.CommonEncoder;
 import priv.fjh.mydubbo.dto.RpcRequest;
 import priv.fjh.mydubbo.dto.RpcResponse;
 import priv.fjh.mydubbo.serializer.JsonSerializer;
+import priv.fjh.mydubbo.serializer.KryoSerializer;
 
 /**
  * @author fjh
@@ -42,7 +43,7 @@ public class NettyClient implements RpcClient {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new CommonDecoder())
-                                .addLast(new CommonEncoder(new JsonSerializer()))
+                                .addLast(new CommonEncoder(new KryoSerializer()))
                                 .addLast(new NettyClientHandler());
                     }
                 });
