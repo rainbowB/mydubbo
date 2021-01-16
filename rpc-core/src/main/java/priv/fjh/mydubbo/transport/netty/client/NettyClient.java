@@ -1,4 +1,4 @@
-package priv.fjh.mydubbo.netty.client;
+package priv.fjh.mydubbo.transport.netty.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -7,13 +7,18 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
-import priv.fjh.mydubbo.RpcClient;
 import priv.fjh.mydubbo.codec.CommonDecoder;
 import priv.fjh.mydubbo.codec.CommonEncoder;
 import priv.fjh.mydubbo.dto.RpcRequest;
 import priv.fjh.mydubbo.dto.RpcResponse;
-import priv.fjh.mydubbo.serializer.JsonSerializer;
+import priv.fjh.mydubbo.registry.ServiceRegistry;
+import priv.fjh.mydubbo.registry.ZkServiceRegistry;
 import priv.fjh.mydubbo.serializer.KryoSerializer;
+import priv.fjh.mydubbo.transport.RpcClient;
+import priv.fjh.mydubbo.utils.checker.RpcMessageChecker;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author fjh
@@ -23,14 +28,8 @@ import priv.fjh.mydubbo.serializer.KryoSerializer;
 @Slf4j
 public class NettyClient implements RpcClient {
 
-    private String host;
-    private int port;
     private static final Bootstrap bootstrap;
-
-    public NettyClient(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
+    private final ServiceRegistry serviceRegistry;
 
     static {
         EventLoopGroup group = new NioEventLoopGroup();
@@ -49,28 +48,39 @@ public class NettyClient implements RpcClient {
                 });
     }
 
+    public NettyClient() {
+        serviceRegistry = new ZkServiceRegistry();
+    }
+
     @Override
     public Object sendRequest(RpcRequest rpcRequest) {
+        AtomicReference<Object> atomicReference = new AtomicReference<>(null);
         try {
-            ChannelFuture future = bootstrap.connect(host, port).sync();
-            log.info("客户端连接到服务器 {}:{}", host, port);
+            InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+            ChannelFuture future = bootstrap.connect(inetSocketAddress).sync();
+            log.info("客户端连接到服务器 {}", inetSocketAddress);
             Channel channel = future.channel();
-            if(channel != null) {
-                channel.writeAndFlush(rpcRequest).addListener(future1 -> {
+            if(channel.isActive()) {
+                channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener)future1 -> {
                     if(future1.isSuccess()) {
-                        log.info(String.format("客户端发送消息: %s", rpcRequest.toString()));
+                        log.info("客户端发送消息: {}", rpcRequest);
                     } else {
+                        future1.channel().close();
                         log.error("发送消息时有错误发生: ", future1.cause());
                     }
                 });
                 channel.closeFuture().sync();
-                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
+                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + rpcRequest.getRequestId());
                 RpcResponse rpcResponse = channel.attr(key).get();
-                return rpcResponse.getData();
+                //校验 RpcResponse 和 RpcRequest
+                RpcMessageChecker.check(rpcResponse, rpcRequest);
+                atomicReference.set(rpcResponse.getData());
+            } else {
+                System.exit(0);
             }
         } catch (InterruptedException e) {
             log.error("发送消息时有错误发生: ", e);
         }
-        return null;
+        return atomicReference.get();
     }
 }

@@ -1,6 +1,8 @@
 package priv.fjh.mydubbo;
 
-import priv.fjh.mydubbo.netty.client.NettyClient;
+import priv.fjh.mydubbo.transport.RpcClient;
+import priv.fjh.mydubbo.transport.RpcClientProxy;
+import priv.fjh.mydubbo.transport.netty.client.NettyClient;
 
 /**
  * @author fjh
@@ -9,7 +11,7 @@ import priv.fjh.mydubbo.netty.client.NettyClient;
  */
 public class NettyTestClient {
     public static void main(String[] args) {
-        RpcClient client = new NettyClient("127.0.0.1", 9999);
+        RpcClient client = new NettyClient();
         RpcClientProxy rpcClientProxy = new RpcClientProxy(client);
         HelloService helloService = (HelloService) rpcClientProxy.getProxy(HelloService.class);
         Hello object = new Hello(12, "This is a message");

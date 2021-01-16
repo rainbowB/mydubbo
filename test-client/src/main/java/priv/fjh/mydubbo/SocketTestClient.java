@@ -1,6 +1,7 @@
 package priv.fjh.mydubbo;
 
-import priv.fjh.mydubbo.socket.SocketClient;
+import priv.fjh.mydubbo.transport.RpcClientProxy;
+import priv.fjh.mydubbo.transport.socket.SocketClient;
 
 /**
  * @author fjh

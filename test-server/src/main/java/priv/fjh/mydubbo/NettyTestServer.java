@@ -1,9 +1,7 @@
 package priv.fjh.mydubbo;
 
 import priv.fjh.mydubbo.impl.HelloServiceImpl;
-import priv.fjh.mydubbo.netty.server.NettyServer;
-import priv.fjh.mydubbo.register.DefaultServiceRegister;
-import priv.fjh.mydubbo.register.ServiceRegister;
+import priv.fjh.mydubbo.transport.netty.server.NettyServer;
 
 
 /**
@@ -14,9 +12,7 @@ import priv.fjh.mydubbo.register.ServiceRegister;
 public class NettyTestServer {
     public static void main(String[] args) {
         HelloService helloService = new HelloServiceImpl();
-        ServiceRegister register = new DefaultServiceRegister();
-        register.register(helloService);
-        NettyServer server = new NettyServer();
-        server.start(9999);
+        NettyServer server = new NettyServer("127.0.0.1", 9999);
+        server.publishService(helloService, HelloService.class);
     }
 }

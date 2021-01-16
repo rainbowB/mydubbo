@@ -1,9 +1,8 @@
-package priv.fjh.mydubbo.socket;
+package priv.fjh.mydubbo.transport.socket;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import priv.fjh.mydubbo.RpcClient;
-import priv.fjh.mydubbo.RpcServer;
+import priv.fjh.mydubbo.transport.RpcClient;
 import priv.fjh.mydubbo.dto.RpcRequest;
 import priv.fjh.mydubbo.dto.RpcResponse;
 

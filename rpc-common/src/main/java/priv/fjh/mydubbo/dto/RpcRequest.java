@@ -17,7 +17,11 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RpcRequest implements Serializable {
-
+    private static final long serialVersionUID = 2999692917810775453L;
+    /**
+     * 请求号
+     */
+    private String requestId;
     /**
      * 待调用接口名称
      */

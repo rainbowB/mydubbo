@@ -1,14 +1,11 @@
-package priv.fjh.mydubbo;
+package priv.fjh.mydubbo.transport;
 
 import lombok.AllArgsConstructor;
-import priv.fjh.mydubbo.RpcClient;
 import priv.fjh.mydubbo.dto.RpcRequest;
-import priv.fjh.mydubbo.dto.RpcResponse;
-import priv.fjh.mydubbo.socket.SocketClient;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.UUID;
 
 /**
  * @author fjh
@@ -26,6 +23,9 @@ public class RpcClientProxy implements InvocationHandler {
         return Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz}, this);
     }
 
+    /**
+     * 当你使用代理对象调用方法的时候实际会调用到这个方法。代理对象就是你通过上面的 getProxy 方法获取到的对象。
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         //客户端生成并调用代理对象时，会将对应的service封装到RpcRequest中，然后传给服务端。服务端解析出来后调用相应的方法
@@ -33,6 +33,7 @@ public class RpcClientProxy implements InvocationHandler {
                 .parameters(args)
                 .interfaceName(method.getDeclaringClass().getName())
                 .paramTypes(method.getParameterTypes())
+                .requestId(UUID.randomUUID().toString())
                 .build();
         //不在这个方法中调用method.invoke()，因为客户端没有相应的实现方法，只有接口
         return rpcClient.sendRequest(rpcRequest);

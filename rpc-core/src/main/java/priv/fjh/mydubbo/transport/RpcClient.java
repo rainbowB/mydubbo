@@ -1,4 +1,4 @@
-package priv.fjh.mydubbo;
+package priv.fjh.mydubbo.transport;
 
 import priv.fjh.mydubbo.dto.RpcRequest;
 

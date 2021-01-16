@@ -1,4 +1,4 @@
-package priv.fjh.mydubbo.netty.client;
+package priv.fjh.mydubbo.transport.netty.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -17,14 +17,15 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
-        try {
-            log.info(String.format("客户端接收到消息: %s", msg));
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
-            ctx.channel().attr(key).set(msg);
-            ctx.channel().close();
-        } finally {
-            ReferenceCountUtil.release(msg);
-        }
+        log.info(String.format("客户端接收到消息: %s", msg));
+        AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + msg.getRequestId());
+        /*
+         * AttributeMap 可以看作是一个Channel的共享数据源
+         * AttributeMap 的 key 是 AttributeKey，value 是 Attribute
+         */
+        // 将服务端的返回结果保存到 AttributeMap 上
+        ctx.channel().attr(key).set(msg);
+        ctx.channel().close();
     }
 
     @Override

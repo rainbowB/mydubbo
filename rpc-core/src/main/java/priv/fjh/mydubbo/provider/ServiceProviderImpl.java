@@ -1,4 +1,4 @@
-package priv.fjh.mydubbo.register;
+package priv.fjh.mydubbo.provider;
 
 import lombok.extern.slf4j.Slf4j;
 import priv.fjh.mydubbo.constants.RpcErrorEnum;
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description:
  */
 @Slf4j
-public class DefaultServiceRegister implements ServiceRegister {
+public class ServiceProviderImpl implements ServiceProvider {
 
     //例如对象A实现了接口X和Y，则map的key为X，value为A；key为Y，value为A。
     private static final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
@@ -22,7 +22,7 @@ public class DefaultServiceRegister implements ServiceRegister {
     private static final Set<String> registeredService = ConcurrentHashMap.newKeySet();
 
     @Override
-    public synchronized <T> void register(T service) {
+    public <T> void addServiceProvider(T service) {
         //父类引用指向子类对象时，canonicalName是子类名称
         String canonicalName = service.getClass().getCanonicalName();
         if(registeredService.contains(canonicalName)){
@@ -41,7 +41,7 @@ public class DefaultServiceRegister implements ServiceRegister {
     }
 
     @Override
-    public synchronized Object getService(String serviceName) {
+    public Object getServiceProvider(String serviceName) {
         Object service = serviceMap.get(serviceName);
         if(service == null) {
             throw new RpcException(RpcErrorEnum.SERVICE_NOT_FOUND);
