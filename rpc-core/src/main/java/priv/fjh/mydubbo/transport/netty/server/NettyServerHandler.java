@@ -23,13 +23,13 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
-    private static final RequestHandler requestHandler;
     private static final String THREAD_NAME_PREFIX = "netty-server-handler-rpc-pool";
-    private static final ExecutorService threadPool;
+    private final RequestHandler requestHandler;
+    private final ExecutorService threadPool;
 
-    static {
-        requestHandler = new RequestHandler();
-        threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
+    public NettyServerHandler() {
+        this.requestHandler = new RequestHandler();
+        this.threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
     }
 
     @Override

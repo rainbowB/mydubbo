@@ -29,10 +29,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NettyClient implements RpcClient {
 
     private static final Bootstrap bootstrap;
+    private static final EventLoopGroup group;
     private final ServiceRegistry serviceRegistry;
 
     static {
-        EventLoopGroup group = new NioEventLoopGroup();
+        group = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
@@ -60,26 +61,27 @@ public class NettyClient implements RpcClient {
             ChannelFuture future = bootstrap.connect(inetSocketAddress).sync();
             log.info("客户端连接到服务器 {}", inetSocketAddress);
             Channel channel = future.channel();
-            if(channel.isActive()) {
-                channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener)future1 -> {
-                    if(future1.isSuccess()) {
-                        log.info("客户端发送消息: {}", rpcRequest);
-                    } else {
-                        future1.channel().close();
-                        log.error("发送消息时有错误发生: ", future1.cause());
-                    }
-                });
-                channel.closeFuture().sync();
-                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + rpcRequest.getRequestId());
-                RpcResponse rpcResponse = channel.attr(key).get();
-                //校验 RpcResponse 和 RpcRequest
-                RpcMessageChecker.check(rpcResponse, rpcRequest);
-                atomicReference.set(rpcResponse.getData());
-            } else {
-                System.exit(0);
+            if(!channel.isActive()) {
+                group.shutdownGracefully();
+                return null;
             }
+            channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener)future1 -> {
+                if(future1.isSuccess()) {
+                    log.info("客户端发送消息: {}", rpcRequest);
+                } else {
+                    future1.channel().close();
+                    log.error("发送消息时有错误发生: ", future1.cause());
+                }
+            });
+            channel.closeFuture().sync();
+            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + rpcRequest.getRequestId());
+            RpcResponse rpcResponse = channel.attr(key).get();
+            //校验 RpcResponse 和 RpcRequest
+            RpcMessageChecker.check(rpcResponse, rpcRequest);
+            atomicReference.set(rpcResponse.getData());
         } catch (InterruptedException e) {
             log.error("发送消息时有错误发生: ", e);
+            Thread.currentThread().interrupt();
         }
         return atomicReference.get();
     }

@@ -35,7 +35,6 @@ public class RpcClientProxy implements InvocationHandler {
                 .paramTypes(method.getParameterTypes())
                 .requestId(UUID.randomUUID().toString())
                 .build();
-        //不在这个方法中调用method.invoke()，因为客户端没有相应的实现方法，只有接口
         return rpcClient.sendRequest(rpcRequest);
     }
 }

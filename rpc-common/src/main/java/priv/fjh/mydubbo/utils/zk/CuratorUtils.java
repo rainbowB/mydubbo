@@ -1,5 +1,6 @@
 package priv.fjh.mydubbo.utils.zk;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description:
  */
 @Slf4j
+@NoArgsConstructor
 public class CuratorUtils {
 
     private static final int BASE_SLEEP_TIME = 1000;
@@ -28,7 +30,7 @@ public class CuratorUtils {
     private static final String CONNECT_STRING = "192.168.23.128:2181";
     public static final String ZK_REGISTER_ROOT_PATH = "/servers";
     private static CuratorFramework zkClient;
-    private static final Map<String, List<String>> serviceAddressMap = new ConcurrentHashMap<>();
+    private static Map<String, List<String>> serviceAddressMap = new ConcurrentHashMap<>();
 
     public static CuratorFramework getZkClient(){
         if (zkClient != null && zkClient.getState() == CuratorFrameworkState.STARTED) {
@@ -45,6 +47,7 @@ public class CuratorUtils {
 
     /**
      * 创建节点
+     * /servers/priv.fjh.mydubbo.HelloService/127.0.0.1:9999
      */
     public static void createNode(CuratorFramework zkClient, CreateMode createMode, String path) throws Exception {
         zkClient.create().creatingParentContainersIfNeeded().withMode(createMode).forPath(path);
