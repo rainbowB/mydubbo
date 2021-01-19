@@ -10,12 +10,16 @@ import priv.fjh.mydubbo.transport.netty.client.NettyClient;
  * @Description:
  */
 public class NettyTestClient {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         RpcClient client = new NettyClient();
         RpcClientProxy rpcClientProxy = new RpcClientProxy(client);
         HelloService helloService = (HelloService) rpcClientProxy.getProxy(HelloService.class);
-        Hello object = new Hello(12, "This is a message");
-        String res = helloService.hello(object);
+        String res = helloService.hello(new Hello(1, "This is a message"));
         System.out.println(res);
+        Thread.sleep(12000);
+        for (int i = 0; i < 50; i++) {
+            String des = helloService.hello(new Hello(2, "~~~" + i));
+            System.out.println(des);
+        }
     }
 }

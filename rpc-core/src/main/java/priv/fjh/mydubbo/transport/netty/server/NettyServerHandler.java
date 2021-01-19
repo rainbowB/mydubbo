@@ -23,26 +23,21 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
-    private static final String THREAD_NAME_PREFIX = "netty-server-handler-rpc-pool";
     private final RequestHandler requestHandler;
-    private final ExecutorService threadPool;
 
     public NettyServerHandler() {
         this.requestHandler = new RequestHandler();
-        this.threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg) throws Exception {
-        threadPool.execute(() -> {
-            log.info("server handle message from client by thread:{}", Thread.currentThread().getName());
-            log.info("服务器接收到请求: {}", msg);
-            //执行目标方法（客户端需要执行的方法）并且返回方法结果
-            Object result = requestHandler.handle(msg);
-            //返回方法执行结果给客户端
-            ChannelFuture future = ctx.writeAndFlush(RpcResponse.getSuccess(msg.getRequestId(), result));
-            future.addListener(ChannelFutureListener.CLOSE);
-        });
+        log.info("server handle message from client by thread:{}", Thread.currentThread().getName());
+        log.info("服务器接收到请求: {}", msg);
+        //执行目标方法（客户端需要执行的方法）并且返回方法结果
+        Object result = requestHandler.handle(msg);
+        //返回方法执行结果给客户端
+        ChannelFuture future = ctx.writeAndFlush(RpcResponse.getSuccess(msg.getRequestId(), result));
+        future.addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override

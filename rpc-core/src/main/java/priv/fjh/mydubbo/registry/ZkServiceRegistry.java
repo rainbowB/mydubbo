@@ -3,9 +3,12 @@ package priv.fjh.mydubbo.registry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
+import priv.fjh.mydubbo.loadbalance.LoadBalance;
+import priv.fjh.mydubbo.loadbalance.RandomLoadBalance;
 import priv.fjh.mydubbo.utils.zk.CuratorUtils;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * @author fjh
@@ -16,9 +19,11 @@ import java.net.InetSocketAddress;
 public class ZkServiceRegistry implements ServiceRegistry{
 
     private final CuratorFramework zkClient;
+    private final LoadBalance loadBalance;
 
     public ZkServiceRegistry() {
         this.zkClient = CuratorUtils.getZkClient();
+        this.loadBalance = new RandomLoadBalance();
     }
 
     @Override
@@ -42,9 +47,8 @@ public class ZkServiceRegistry implements ServiceRegistry{
 
     @Override
     public InetSocketAddress lookupService(String serviceName) {
-        // TODO 负载均衡
-        // 这里直接去了第一个找到的服务地址
-        String serviceAddress = CuratorUtils.getChildrenNodes(zkClient, serviceName).get(0);
+        List<String> serviceAddresses = CuratorUtils.getChildrenNodes(zkClient, serviceName);
+        String serviceAddress = loadBalance.selectServiceAddress(serviceAddresses);
         log.info("成功找到服务地址:{}", serviceAddress);
         String[] socketAddressArray = serviceAddress.split(":");
         String host = socketAddressArray[0];
