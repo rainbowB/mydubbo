@@ -22,10 +22,9 @@ public class ServiceProviderImpl implements ServiceProvider {
     private static Set<String> registeredService = ConcurrentHashMap.newKeySet();
 
     @Override
-    public <T> void addServiceProvider(T service, Class<T> serviceClass) {
+    public <T> void addServiceProvider(T service, String serviceName) {
         //父类引用指向子类对象时，canonicalName是子类名称。即下面注释获得的是HelloServiceImpl
         //String canonicalName = service.getClass().getCanonicalName();
-        String serviceName = serviceClass.getCanonicalName(); //此处获得的是HelloService
         if(registeredService.contains(serviceName)){
             return;
         }

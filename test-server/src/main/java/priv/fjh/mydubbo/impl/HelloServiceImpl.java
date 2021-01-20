@@ -3,6 +3,7 @@ package priv.fjh.mydubbo.impl;
 import lombok.extern.slf4j.Slf4j;
 import priv.fjh.mydubbo.Hello;
 import priv.fjh.mydubbo.HelloService;
+import priv.fjh.mydubbo.annotation.Service;
 
 /**
  * @author fjh
@@ -10,6 +11,7 @@ import priv.fjh.mydubbo.HelloService;
  * @Description:
  */
 @Slf4j
+@Service
 public class HelloServiceImpl implements HelloService {
     @Override
     public String hello(Hello hello) {

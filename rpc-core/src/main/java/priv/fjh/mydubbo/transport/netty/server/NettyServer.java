@@ -8,16 +8,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
-import priv.fjh.mydubbo.provider.ServiceProvider;
-import priv.fjh.mydubbo.provider.ServiceProviderImpl;
-import priv.fjh.mydubbo.registry.ServiceRegistry;
-import priv.fjh.mydubbo.registry.ZkServiceRegistry;
-import priv.fjh.mydubbo.transport.RpcServer;
 import priv.fjh.mydubbo.codec.CommonDecoder;
 import priv.fjh.mydubbo.codec.CommonEncoder;
+import priv.fjh.mydubbo.provider.ServiceProviderImpl;
+import priv.fjh.mydubbo.registry.ZkServiceRegistry;
 import priv.fjh.mydubbo.serializer.KryoSerializer;
-
-import java.net.InetSocketAddress;
+import priv.fjh.mydubbo.transport.AbstractRpcServer;
 
 /**
  * @author fjh
@@ -25,25 +21,14 @@ import java.net.InetSocketAddress;
  * @Description:
  */
 @Slf4j
-public class NettyServer implements RpcServer {
-
-    private final String host;
-    private final int port;
-    private final ServiceRegistry serviceRegistry;
-    private final ServiceProvider serviceProvider;
+public class NettyServer extends AbstractRpcServer {
 
     public NettyServer(String host, int port) {
-        this.host = host;
-        this.port = port;
-        serviceRegistry = new ZkServiceRegistry();
-        serviceProvider = new ServiceProviderImpl();
-    }
-
-    @Override
-    public <T> void publishService(T service, Class<T> serviceClass) {
-        serviceProvider.addServiceProvider(service, serviceClass);
-        serviceRegistry.registerService(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
-        start();
+        super.host = host;
+        super.port = port;
+        super.serviceRegistry = new ZkServiceRegistry();
+        super.serviceProvider = new ServiceProviderImpl();
+        scanServices();
     }
 
     @Override
